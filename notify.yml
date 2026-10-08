@@ -1,0 +1,14 @@
+name: notify
+on:
+  schedule:
+    - cron: "0 5 * * *"     # 05:00 UTC = 08:00 по Москве
+  workflow_dispatch:
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python notify.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
