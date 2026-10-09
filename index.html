@@ -8,15 +8,30 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Задания группы 4992</h1>
+<header>
+  <div>
+    <h1>Задания</h1>
+    <p class="sub">Группа 4992</p>
+  </div>
+  <button id="plusBtn" class="plus" hidden aria-label="Добавить">+</button>
+</header>
 
-<section id="admin" hidden>
+<section id="admin" class="panel" hidden>
   <input id="subject" placeholder="Предмет" autocomplete="off">
   <input id="task" placeholder="Задание" autocomplete="off">
   <input id="due" type="date">
-  <button id="addBtn">Добавить задание</button>
-  <button id="tokenBtn" class="secondary">Ввести токен GitHub</button>
+  <button id="addBtn" class="primary">Добавить</button>
+  <button id="tokenBtn" class="link">Ввести токен GitHub</button>
 </section>
+
+<div class="seg" id="viewSeg">
+  <button data-view="active">Актуальные</button>
+  <button data-view="archive">Архив</button>
+</div>
+<div class="seg small" id="sortSeg">
+  <button data-sort="date">По сроку</button>
+  <button data-sort="subject">По предметам</button>
+</div>
 
 <main id="list">Загрузка…</main>
 
