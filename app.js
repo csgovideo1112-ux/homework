@@ -2,7 +2,7 @@
 const OWNER    = "csgovideo1112-ux";
 const REPO     = "homework";
 const ADMIN_ID = 1208281651;    
-// ==============================================
+// =============================================
 
 const FILE = "data.json";
 const API  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`;
@@ -30,7 +30,7 @@ async function load() {
     if (!r.ok) throw new Error(r.status);
     items = await r.json();
     if (isAdmin) sha = (await fetch(`${API}?t=${Date.now()}`).then(r => r.json())).sha;
-    render();
+    renderAll();
   } catch (e) {
     $("list").innerHTML = '<div class="empty">Не удалось загрузить данные</div>';
   }
@@ -57,14 +57,14 @@ async function addItem() {
   $("subject").value = $("task").value = $("due").value = "";
   $("admin").hidden = true;
   haptic("medium");
-  render();
+  renderAll();
   await save();
 }
 
 async function del(id) {
   if (!confirm("Удалить задание?")) return;
   items = items.filter(i => i.id !== id);
-  render();
+  renderAll();
   await save();
 }
 
@@ -123,6 +123,129 @@ function render() {
     .join("");
 }
 
+
+// ================== РАСПИСАНИЕ И КАЛЕНДАРЬ ==================
+let sched = { slots: [], lessons: [], anchorMonday: "2026-10-19", anchorWeek: "lower" };
+const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт"];
+const WEEKS = { upper: "Верхняя", lower: "Нижняя" };
+const MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const dow = d => (d.getDay() + 6) % 7;                // 0 = Пн
+const mondayOf = d => { const m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); m.setDate(m.getDate() - dow(m)); return m; };
+
+function weekType(date) {
+  const [y, m, d] = sched.anchorMonday.split("-").map(Number);
+  const idx = Math.round((mondayOf(date) - new Date(y, m - 1, d)) / (7 * 864e5));
+  const same = ((idx % 2) + 2) % 2 === 0;
+  const other = sched.anchorWeek === "lower" ? "upper" : "lower";
+  return same ? sched.anchorWeek : other;
+}
+const lessonsFor = (day, week) => sched.lessons
+  .filter(l => l.day === day + 1 && (l.week === "both" || l.week === week))
+  .sort((a, b) => a.slot - b.slot);
+
+const roomText = r => /^\d/.test(r) ? "ауд. " + r : r;
+const mins = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+
+function lessonRow(l, now) {
+  const [s, e] = sched.slots[l.slot - 1];
+  return `<div class="row lesson ${now ? "now" : ""}">
+    <div class="time">${s}<br><span>${e}</span></div>
+    <div class="grow">
+      <div class="task">${esc(l.subject)}${now ? '<span class="nowtag">идёт сейчас</span>' : ""}</div>
+      <div class="date">${esc(l.teacher)} · ${esc(roomText(l.room))}</div>
+    </div></div>`;
+}
+
+// ---- вкладка «Расписание» ----
+const today0 = () => { const t = new Date(); t.setHours(0, 0, 0, 0); return t; };
+let sWeek = null, sDay = 0;
+
+function initSched() {
+  const t = today0(), cur = weekType(t);
+  if (dow(t) <= 4) { sDay = dow(t); sWeek = cur; }
+  else { sDay = 0; sWeek = cur === "upper" ? "lower" : "upper"; }   // выходные → ближайший понедельник
+  $("daySeg").innerHTML = DAYS.map((d, i) => `<button data-day="${i}">${d}</button>`).join("");
+}
+
+function renderSched() {
+  const t = today0(), cur = weekType(t);
+  $("weekInfo").textContent = `Сейчас ${cur === "upper" ? "верхняя" : "нижняя"} неделя`;
+  document.querySelectorAll("#weekSeg button").forEach(b => {
+    b.classList.toggle("on", b.dataset.week === sWeek);
+    b.textContent = WEEKS[b.dataset.week] + (b.dataset.week === cur ? " ·  сейчас" : "");
+  });
+  document.querySelectorAll("#daySeg button").forEach(b => b.classList.toggle("on", Number(b.dataset.day) === sDay));
+
+  const list = lessonsFor(sDay, sWeek);
+  const n = new Date(), nm = n.getHours() * 60 + n.getMinutes();
+  const isToday = sDay === dow(t) && sWeek === cur;
+  $("schedList").innerHTML = list.length
+    ? `<div class="group-box">${list.map(l => {
+        const [s, e] = sched.slots[l.slot - 1];
+        return lessonRow(l, isToday && nm >= mins(s) && nm <= mins(e));
+      }).join("")}</div>`
+    : '<div class="empty">Пар нет 🎉</div>';
+}
+
+// ---- вкладка «Календарь» ----
+let calMonth = new Date(today0().getFullYear(), today0().getMonth(), 1);
+let calSel = ymd(today0());
+
+function renderCal() {
+  $("calTitle").textContent = `${MONTHS[calMonth.getMonth()]} ${calMonth.getFullYear()}`;
+  const byDay = {};
+  items.forEach(i => (byDay[i.due] = byDay[i.due] || []).push({ ...i, d: daysLeft(i.due) }));
+
+  const lead = dow(calMonth);
+  const total = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 0).getDate();
+  const todayKey = ymd(today0());
+  let html = "";
+  for (let i = 0; i < lead; i++) html += '<button class="day out"></button>';
+  for (let d = 1; d <= total; d++) {
+    const key = `${calMonth.getFullYear()}-${pad(calMonth.getMonth() + 1)}-${pad(d)}`;
+    const list = byDay[key] || [];
+    const dd = list.length ? list[0].d : 0;
+    const cls = dd < 0 ? "past" : dd <= 2 ? "urgent" : "";
+    html += `<button class="day ${key === todayKey ? "today" : ""} ${key === calSel ? "sel" : ""} ${list.length ? "has" : ""}" data-date="${key}">${d}<i class="${cls}"></i></button>`;
+  }
+  $("calGrid").innerHTML = html;
+
+  // подробности выбранного дня
+  const [y, m, d] = calSel.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const wk = weekType(date);
+  const head = date.toLocaleDateString("ru-RU", { day: "numeric", month: "long", weekday: "long" });
+  let out = `<div class="dayhead">${head} · ${wk === "upper" ? "верхняя" : "нижняя"} неделя</div>`;
+  const tasks = (byDay[calSel] || []);
+  const lessons = dow(date) <= 4 ? lessonsFor(dow(date), wk) : [];
+  if (tasks.length) out += `<div class="group">Сдать</div><div class="group-box">${tasks.map(i => row(i, true)).join("")}</div>`;
+  if (lessons.length) out += `<div class="group">Пары</div><div class="group-box">${lessons.map(l => lessonRow(l, false)).join("")}</div>`;
+  if (!tasks.length && !lessons.length) out += '<div class="empty">В этот день ничего нет</div>';
+  $("calDetail").innerHTML = out;
+}
+
+// ---- вкладки и события ----
+let tab = "tasks";
+function renderAll() { render(); renderSched(); renderCal(); }
+function showTab(t) {
+  tab = t;
+  $("tasksView").hidden = t !== "tasks";
+  $("schedView").hidden = t !== "sched";
+  $("calView").hidden = t !== "cal";
+  document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  window.scrollTo(0, 0);
+}
+
+$("tabbar").onclick = e => { const b = e.target.closest("button"); if (b) { haptic(); showTab(b.dataset.tab); } };
+$("weekSeg").onclick = e => { const b = e.target.closest("button"); if (b) { sWeek = b.dataset.week; haptic(); renderSched(); } };
+$("daySeg").onclick = e => { const b = e.target.closest("button"); if (b) { sDay = Number(b.dataset.day); haptic(); renderSched(); } };
+$("calPrev").onclick = () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderCal(); };
+$("calNext").onclick = () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderCal(); };
+$("calGrid").onclick = e => { const b = e.target.closest(".day[data-date]"); if (b) { calSel = b.dataset.date; haptic(); renderCal(); } };
+
 $("plusBtn").onclick = () => { $("admin").hidden = !$("admin").hidden; haptic(); };
 $("addBtn").onclick = addItem;
 $("tokenBtn").onclick = () => { const t = prompt("Вставь GitHub токен"); if (t) localStorage.setItem("gh_token", t.trim()); };
@@ -130,4 +253,15 @@ $("list").onclick = e => { const b = e.target.closest(".del"); if (b) del(Number
 $("viewSeg").onclick = e => { const b = e.target.closest("button"); if (b) { view = b.dataset.view; keep("view", view); haptic(); render(); } };
 $("sortSeg").onclick = e => { const b = e.target.closest("button"); if (b) { sort = b.dataset.sort; keep("sort", sort); haptic(); render(); } };
 
+async function loadSched() {
+  try {
+    const r = await fetch(`schedule.json?t=${Date.now()}`);
+    if (r.ok) sched = await r.json();
+  } catch (e) {}
+  initSched();
+  renderSched(); renderCal();
+}
+
+showTab("tasks");
+loadSched();
 load();

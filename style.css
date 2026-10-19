@@ -62,3 +62,34 @@ button:active{opacity:.6}
 .row.old{filter:grayscale(1)}
 
 .empty{text-align:center;color:var(--hint);padding:48px 0;font-size:16px}
+
+[hidden]{display:none!important}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+
+#tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+  background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--sep)}
+#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;color:var(--hint);font-size:10.5px;font-weight:500;padding:4px 0}
+#tabbar button.on{color:var(--accent)}
+#tabbar svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.row.lesson{align-items:center}
+.row.lesson.now::after{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 3px 3px 0;background:var(--accent)}
+.time{flex:none;width:48px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.25}
+.time span{color:var(--hint);font-weight:400}
+.nowtag{display:inline-block;margin-left:6px;font-size:12px;font-weight:600;color:var(--accent)}
+
+.nav{display:flex;gap:8px}
+.nav button{width:36px;height:36px;border-radius:50%;background:var(--card);color:var(--accent);font-size:24px;line-height:1;padding:0 0 3px}
+.cal{padding:12px 8px}
+.wd,.grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.wd span{font-size:12px;font-weight:600;color:var(--hint);padding-bottom:6px}
+.day{aspect-ratio:1;margin:1px;border-radius:50%;background:none;color:var(--text);font-size:17px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0}
+.day.out{visibility:hidden}
+.day.today{color:var(--accent);font-weight:700}
+.day.sel{background:var(--accent);color:var(--accent-text)}
+.day i{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.day i.urgent{background:var(--red)}
+.day i.past{background:var(--hint)}
+.day.sel i{background:var(--accent-text)}
+.day:not(.has) i{visibility:hidden}
+.dayhead{margin:6px 14px 8px;font-size:15px;font-weight:600}
