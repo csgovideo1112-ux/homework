@@ -1,8 +1,4 @@
-// ====== НАСТРОЙКИ — поменяй три значения ======
-const OWNER    = "csgovideo1112-ux";
-const REPO     = "homework";
-const ADMIN_ID = 1208281651;    
-// =============================================
+// OWNER, REPO и ADMIN_ID лежат в config.js
 
 const FILE = "data.json";
 const API  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`;
@@ -87,7 +83,7 @@ function row(i, showSubject) {
       <div class="task">${esc(i.task)}</div>
       <div class="date ${urgent ? "urgent" : ""}">${when}</div>
     </div>
-    ${isAdmin ? `<button class="del" data-id="${i.id}">✕</button>` : ""}
+    ${isAdmin ? `<button class="del" data-id="${i.id}">×</button>` : ""}
   </div>`;
 }
 
@@ -218,7 +214,7 @@ function renderCal() {
   const date = new Date(y, m - 1, d);
   const wk = weekType(date);
   const head = date.toLocaleDateString("ru-RU", { day: "numeric", month: "long", weekday: "long" });
-  let out = `<div class="dayhead">${head} · ${wk === "upper" ? "верхняя" : "нижняя"} неделя</div>`;
+  let out = `<div class="dayhead">${head}<small>${wk === "upper" ? "верхняя" : "нижняя"} неделя</small></div>`;
   const tasks = (byDay[calSel] || []);
   const lessons = dow(date) <= 4 ? lessonsFor(dow(date), wk) : [];
   if (tasks.length) out += `<div class="group">Сдать</div><div class="group-box">${tasks.map(i => row(i, true)).join("")}</div>`;
@@ -227,9 +223,35 @@ function renderCal() {
   $("calDetail").innerHTML = out;
 }
 
+// ---- карточка «сегодня» ----
+function renderHero() {
+  const t = new Date(), t0 = today0(), wk = weekType(t0);
+  $("heroNum").textContent = t.getDate();
+  $("heroDow").textContent = t.toLocaleDateString("ru-RU", { weekday: "long" }).replace(/^./, c => c.toUpperCase());
+  $("heroMonth").textContent = t.toLocaleDateString("ru-RU", { day: "numeric", month: "long" }).replace(/^\d+\s*/, "") + " · " + (wk === "upper" ? "верхняя" : "нижняя") + " неделя";
+
+  const act = items.map(i => daysLeft(i.due)).filter(d => d >= 0);
+  const hot = act.filter(d => d <= 2).length;
+  $("heroChips").innerHTML =
+    (hot ? `<span class="chip hot"><b>${hot}</b> горит</span>` : "") +
+    `<span class="chip"><b>${act.length}</b> ${act.length === 1 ? "актуальное" : "актуальных"}</span>`;
+
+  const day = dow(t0), nm = t.getHours() * 60 + t.getMinutes();
+  const list = day <= 4 && sched.lessons.length ? lessonsFor(day, wk) : [];
+  let txt = "Сегодня пар нет";
+  if (list.length) {
+    const cur = list.find(l => nm >= mins(sched.slots[l.slot - 1][0]) && nm <= mins(sched.slots[l.slot - 1][1]));
+    const nxt = list.find(l => mins(sched.slots[l.slot - 1][0]) > nm);
+    if (cur) txt = `<em>Сейчас</em> · ${esc(cur.subject)}`;
+    else if (nxt) txt = `<em>Дальше, ${sched.slots[nxt.slot - 1][0]}</em> · ${esc(nxt.subject)}`;
+    else txt = "Пары на сегодня закончились";
+  }
+  $("heroNext").innerHTML = txt;
+}
+
 // ---- вкладки и события ----
 let tab = "tasks";
-function renderAll() { render(); renderSched(); renderCal(); }
+function renderAll() { render(); renderSched(); renderCal(); renderHero(); }
 function showTab(t) {
   tab = t;
   $("tasksView").hidden = t !== "tasks";
@@ -259,7 +281,7 @@ async function loadSched() {
     if (r.ok) sched = await r.json();
   } catch (e) {}
   initSched();
-  renderSched(); renderCal();
+  renderSched(); renderCal(); renderHero();
 }
 
 showTab("tasks");

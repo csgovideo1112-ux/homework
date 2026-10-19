@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Группа 4992</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/sf-ui-text-regular.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/sf-ui-display-heavy.woff2">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,6 +16,15 @@
     <div><h1>Задания</h1><p class="sub">Группа 4992</p></div>
     <button id="plusBtn" class="plus" hidden aria-label="Добавить">+</button>
   </header>
+  <section class="hero" id="hero">
+    <div class="hero-wm">4992</div>
+    <div class="hero-top">
+      <div class="hero-num" id="heroNum"></div>
+      <div><div class="hero-dow" id="heroDow"></div><div class="hero-month" id="heroMonth"></div></div>
+    </div>
+    <div class="chips" id="heroChips"></div>
+    <div class="next" id="heroNext"></div>
+  </section>
   <section id="admin" class="panel" hidden>
     <input id="subject" placeholder="Предмет" autocomplete="off">
     <input id="task" placeholder="Задание" autocomplete="off">
@@ -60,6 +71,7 @@
   <button data-tab="cal"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Календарь</button>
 </nav>
 
+<script src="config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
