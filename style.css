@@ -133,7 +133,6 @@ h1{font-family:var(--display);font-size:34px;line-height:1.08;font-weight:800;le
 .day i.urgent{background:var(--red)}
 .day i.past{background:var(--hint)}
 .day.sel i{background:var(--accent-text)}
-.day:not(.has) i{visibility:hidden}
 .dayhead{margin:8px 14px 8px;font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:-.2px}
 .dayhead::first-letter{text-transform:uppercase}
 .dayhead small{display:block;font-family:var(--font);font-size:13px;font-weight:400;font-style:italic;color:var(--hint);text-transform:none;letter-spacing:0;margin-top:1px}
@@ -144,3 +143,64 @@ h1{font-family:var(--display);font-size:34px;line-height:1.08;font-weight:800;le
 #tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;color:var(--hint);font-size:10.5px;font-weight:500;padding:4px 0}
 #tabbar button.on{color:var(--accent);font-weight:600}
 #tabbar svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- форма: селекты и поля ---------- */
+.field{border-bottom:.5px solid var(--sep)}
+.field label{display:block;padding-top:12px;font-size:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--hint)}
+.field select,.panel select{display:block;width:100%;padding:13px 26px 13px 0;border:0;background:none;color:var(--text);font-family:var(--font);font-size:17px;outline:none;border-radius:0;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238e8e93' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 2px center}
+.field input{display:block;width:100%;padding:11px 0 13px;border:0;background:none;color:var(--text);outline:none;font-size:17px}
+.field input::placeholder{color:var(--hint);font-weight:300;font-style:italic}
+.panel .field{border-bottom:.5px solid var(--sep)}
+.panel .field input{border-bottom:0;padding-top:0}
+.link.red{color:var(--red)}
+.t{font-weight:500;color:var(--hint);text-transform:none;letter-spacing:0}
+.gt{margin-left:8px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--hint);opacity:.85}
+
+/* ---------- неделя в расписании ---------- */
+.weeknav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.weeknav button{width:38px;height:38px;border-radius:50%;background:var(--card);color:var(--accent);font-family:var(--display);font-weight:300;font-size:26px;line-height:1;padding:0 0 3px}
+.weeknav>div{text-align:center}
+#weekLabel{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.2px}
+.weeknav small{display:block;font-size:13px;font-style:italic;color:var(--hint);margin-top:1px}
+#daySeg button{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.1;padding:5px 2px 4px}
+#daySeg span{font-size:12px;font-weight:500;color:var(--hint)}
+#daySeg b{font-family:var(--display);font-size:17px;font-weight:600}
+#daySeg button.tod b{color:var(--accent)}
+.cd{width:4px;height:4px;border-radius:50%;background:#ff9500;margin-top:1px}
+.cd.off{visibility:hidden}
+
+/* ---------- замены в парах ---------- */
+.tag{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;font-size:11.5px;font-weight:700;vertical-align:2px;letter-spacing:.1px}
+.tag.red{color:var(--red);background:rgba(255,59,48,.14)}
+.tag.orange{color:#ff9500;background:rgba(255,149,0,.16)}
+.tag.green{color:#34c759;background:rgba(52,199,89,.16)}
+.was{font-size:13px;font-style:italic;color:var(--hint);text-decoration:line-through;margin-top:2px}
+.row.lesson.cancelled .task{text-decoration:line-through;color:var(--hint);font-weight:300}
+.row.lesson.cancelled .time,.row.lesson.cancelled .date{opacity:.55}
+.row.lesson.replaced,.row.lesson.added{background:linear-gradient(90deg,rgba(255,149,0,.08),transparent 60%)}
+.row.lesson.added{background:linear-gradient(90deg,rgba(52,199,89,.08),transparent 60%)}
+.row.lesson.cancelled{background:linear-gradient(90deg,rgba(255,59,48,.07),transparent 60%)}
+.row.lesson.editable{cursor:pointer}
+.row.lesson.editable:active{opacity:.6}
+.addpair{display:block;width:100%;margin-top:12px;padding:13px;border-radius:14px;background:var(--card);color:var(--accent);font-weight:600}
+.hint{text-align:center;color:var(--hint);font-size:13px;font-style:italic;margin:12px 20px 0}
+.chip.warn{background:#ff9500;color:#fff;box-shadow:0 2px 8px rgba(255,149,0,.45)}
+
+/* ---------- календарь: точки ---------- */
+.dots{display:flex;gap:3px;height:5px}
+.day i{display:block}
+.day i.chg{background:#ff9500}
+.day.sel i.chg{background:var(--accent-text)}
+
+/* ---------- окно замены ---------- */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;animation:fade .2s}
+.sheet{width:100%;max-height:90vh;overflow:auto;background:var(--card);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:up .25s ease-out}
+.sheet-title{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:-.3px}
+.sheet-title::first-letter{text-transform:uppercase}
+.sheet-sub{color:var(--hint);font-size:14px;font-style:italic;margin:2px 0 14px}
+.sheet .seg{margin-bottom:6px}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(40px);opacity:.6}}

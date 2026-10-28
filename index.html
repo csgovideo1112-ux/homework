@@ -16,6 +16,7 @@
     <div><h1>Задания</h1><p class="sub">Группа 4992</p></div>
     <button id="plusBtn" class="plus" hidden aria-label="Добавить">+</button>
   </header>
+
   <section class="hero" id="hero">
     <div class="hero-wm">4992</div>
     <div class="hero-top">
@@ -25,13 +26,16 @@
     <div class="chips" id="heroChips"></div>
     <div class="next" id="heroNext"></div>
   </section>
+
   <section id="admin" class="panel" hidden>
-    <input id="subject" placeholder="Предмет" autocomplete="off">
+    <div class="field"><select id="subject"></select><input id="subjectOther" placeholder="Название предмета" hidden></div>
+    <div class="field"><select id="teacher"></select><input id="teacherOther" placeholder="Фамилия преподавателя" hidden></div>
     <input id="task" placeholder="Задание" autocomplete="off">
     <input id="due" type="date">
     <button id="addBtn" class="primary">Добавить</button>
     <button id="tokenBtn" class="link">Ввести токен GitHub</button>
   </section>
+
   <div class="seg" id="viewSeg">
     <button data-view="active">Актуальные</button>
     <button data-view="archive">Архив</button>
@@ -45,9 +49,10 @@
 
 <div id="schedView" hidden>
   <header><div><h1>Расписание</h1><p class="sub" id="weekInfo"></p></div></header>
-  <div class="seg" id="weekSeg">
-    <button data-week="upper">Верхняя неделя</button>
-    <button data-week="lower">Нижняя неделя</button>
+  <div class="weeknav">
+    <button id="wPrev">‹</button>
+    <div><div id="weekLabel"></div><small id="weekType"></small></div>
+    <button id="wNext">›</button>
   </div>
   <div class="seg small" id="daySeg"></div>
   <div id="schedList"></div>
@@ -70,6 +75,27 @@
   <button data-tab="sched"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Расписание</button>
   <button data-tab="cal"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Календарь</button>
 </nav>
+
+<!-- окно замены (только админ) -->
+<div id="overlay" class="overlay" hidden>
+  <div class="sheet">
+    <div class="sheet-title" id="shTitle"></div>
+    <div class="sheet-sub" id="shSub"></div>
+    <div class="seg" id="shMode" hidden>
+      <button data-m="cancel">Отменить пару</button>
+      <button data-m="replace">Заменить пару</button>
+    </div>
+    <div class="field" id="shSlotWrap" hidden><label>Номер пары</label><select id="shSlot"></select></div>
+    <div id="shForm">
+      <div class="field"><label>Предмет</label><select id="shSubject"></select><input id="shSubjectOther" placeholder="Название предмета" hidden></div>
+      <div class="field"><label>Преподаватель</label><select id="shTeacher"></select><input id="shTeacherOther" placeholder="Фамилия преподавателя" hidden></div>
+      <div class="field"><label>Аудитория</label><input id="shRoom" placeholder="Например, 403" autocomplete="off"></div>
+    </div>
+    <button id="shSave" class="primary">Сохранить</button>
+    <button id="shReset" class="link red" hidden>Вернуть как по расписанию</button>
+    <button id="shClose" class="link">Закрыть</button>
+  </div>
+</div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
